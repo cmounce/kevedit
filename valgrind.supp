@@ -1,0 +1,41 @@
+# SDL invalid reads
+{
+   SDL-invalid-read-strncmp
+   Memcheck:Addr8
+   fun:strncmp
+   ...
+   obj:/usr/lib/libGLX_mesa.so.0.0.0
+   ...
+   obj:/usr/lib/libSDL2-2.0.so.0.12.0
+}
+
+# SDL leaks
+{
+   SDL-leak-display_init-any
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/libSDL2-2.0.so.0.12.0
+   ...
+   fun:display_init
+}
+{
+   SDL-leak-display_sdl_init-any
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/libSDL2-2.0.so.0.12.0
+   fun:display_sdl_init
+}
+{
+   SDL-leak-display_present-any
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/libSDL2-2.0.so.0.12.0
+   fun:display_present
+}
+{
+   SDL-leak-display_sdl_end-any
+   Memcheck:Leak
+   ...
+   obj:/usr/lib/libSDL2-2.0.so.0.12.0
+   fun:display_sdl_end
+}
