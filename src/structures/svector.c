@@ -47,11 +47,13 @@ int pushstring(stringvector * v, char *s)
 		newnode->next = NULL;
 		newnode->prev = NULL;
 		newnode->s = s;
+		newnode->capacity = UNKNOWN_CAPACITY;
 
 		v->cur = v->last = v->first = newnode;
 	} else if (v->last != NULL) {
 		newnode = (stringnode *) malloc(sizeof(stringnode));
 		newnode->s = s;
+		newnode->capacity = UNKNOWN_CAPACITY;
 		newnode->prev = v->last;
 		newnode->next = NULL;
 		v->last->next = newnode;
@@ -78,6 +80,7 @@ int insertstring(stringvector * v, char *s)
 
 	newnode = (stringnode *) malloc(sizeof(stringnode));
 	newnode->s = s;
+	newnode->capacity = UNKNOWN_CAPACITY;
 	newnode->prev = v->cur;
 	newnode->next = v->cur->next;
 	newnode->next->prev = newnode;
@@ -102,6 +105,7 @@ int preinsertstring(stringvector * v, char *s)
 
 	newnode = (stringnode *) malloc(sizeof(stringnode));
 	newnode->s = s;
+	newnode->capacity = UNKNOWN_CAPACITY;
 	newnode->prev = v->cur->prev;
 	newnode->next = v->cur;
 	newnode->next->prev = newnode;
@@ -242,7 +246,7 @@ void svmovetofirst(stringvector* v)
 int svmoveby(stringvector* v, int delta)
 {
 	int i;
-	
+
 	if (delta > 0) {
 		for (i = 0; i < delta && v->cur->next != NULL; i++)
 			v->cur = v->cur->next;
@@ -279,7 +283,7 @@ void inssortstringvector(stringvector* v, int (*compare)(const char* s1, const c
 
 	for (sortnode = v->first->next; sortnode != NULL; sortnode = sortnode->next) {
 		curstr = sortnode->s;
-		
+
 		/* Find place to insert curstr */
 		nodepos = sortnode;
 		while (nodepos != v->first && compare(nodepos->prev->s, curstr) > 0) {
@@ -330,12 +334,12 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	longlen = strlen(sv->cur->s) + strlen(str);
 	longstr = (char *) malloc(longlen + 2);
 	memset(longstr, 0, longlen + 2);
-	
+
 	/* fill longstr
-	 * 
+	 *
 	 * i: position in longstr
 	 * j: position in sv->cur->s
-	 * k: position in str 
+	 * k: position in str
 	 */
 
 	/* fill from sv until inspos */
@@ -350,7 +354,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	/* fill from sv until end */
 	for (; i < longlen; i++, j++)
 		longstr[i] = sv->cur->s[j];
-	
+
 	/* cap longstr */
 	longstr[i]   = 0;
 
@@ -368,7 +372,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 		return newpos;
 	}
 
-	/* we need to find the first space before wrapwidth 
+	/* we need to find the first space before wrapwidth
 	 *
 	 * i: position in longstr
 	 * j: position of last identified space
@@ -437,6 +441,38 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	free(longstr);
 
 	return newpos;
+}
+
+void ensure_stringnode_capacity(stringnode *node, int min_capacity) {
+	if (node->capacity == UNKNOWN_CAPACITY) {
+		// Lower bound, not guaranteed to be the true capacity of node->s
+		node->capacity = strlen(node->s) + 1;
+	}
+	if (min_capacity <= node->capacity) {
+		// Nothing to do, node already big enough
+		return;
+	}
+
+	// Choose new capacity for node
+	int new_capacity = 0;
+	int sizes[] = {8, 16, 32, 42 + 1 /* standard line length */, 64};
+	for (int *size = sizes; *size != 0; size++) {
+		// Pick first value that works from table of preferred sizes
+		new_capacity = *size;
+		if (new_capacity >= min_capacity) {
+			break;
+		}
+	}
+	while (new_capacity < min_capacity) {
+		// Went off the end of our table: switch to doubling series
+		new_capacity <<= 1;
+	}
+
+	char * s = (char *) realloc(node->s, new_capacity);
+	if (s != NULL) {
+		node->capacity = new_capacity;
+		node->s = s;
+	}
 }
 
 /**********************************************************************/

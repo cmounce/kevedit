@@ -22,9 +22,12 @@
 
 #include "libzzt2/strtools.h"
 
+#define UNKNOWN_CAPACITY -1
+
 /* basic structures for a string vector */
 
 typedef struct stringnode {
+	short capacity;
 	char *s;
 	struct stringnode *next;
 	struct stringnode *prev;
@@ -91,6 +94,9 @@ void inssortstringvector(stringvector* v, int (*compare)(const char* s1, const c
 
 /* wordwrap() - wrap text in sv */
 int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, int editwidth);
+
+/***** Allocation helpers *****/
+void ensure_stringnode_capacity(stringnode *node, int min_capacity);
 
 /* Token manipulation (TODO: may be obsolete) */
 
