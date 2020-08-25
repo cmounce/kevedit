@@ -149,9 +149,6 @@ int modifyparam(displaymethod * d, ZZTworld * w, int x, int y)
 stringvector programtosvector(ZZTparam * p, int editwidth)
 {
 	stringvector sv;    /* list of strings */
-	char *str = NULL;   /* temporary string */
-	int strpos = 0;     /* position in str */
-	int i;
 
 	initstringvector(&sv);
 
@@ -163,38 +160,28 @@ stringvector programtosvector(ZZTparam * p, int editwidth)
 	}
 
 	/* Let's fill the node from program! */
-	strpos = 0;
-	str = (char *) malloc(sizeof(char) * (editwidth + 1));
-
-	for (i = 0; i < p->length; i++) {
+	int start = 0;
+	for (int i = 0; i < p->length; i++) {
 		if (p->program[i] == 0x0d) {
 			/* end of the line (heh); push the string and start over */
-			str[strpos] = 0;
+			int len = i - start;
+			char * str = (char *) malloc(sizeof(char) * (len + 1));
+			memcpy(str, p->program + start, len);
+			str[len] = 0;
 			pushstring(&sv, str);
-			strpos = 0;
-			str = (char *) malloc(sizeof(char) * (editwidth + 1));
-		} else if (strpos > editwidth) {
-			/* hmmm... really long line; must not have been made in ZZT... */
-			/* let's truncate! */
-			str[strpos] = 0;
-			pushstring(&sv, str);
-			strpos = 0;
-			str = (char *) malloc(sizeof(char) * (editwidth + 1));
-			/* move to next 0x0d */
-			do i++; while (i < p->length && p->program[i] != 0x0d);
-		} else {
-			/* just your everyday copying... */
-			str[strpos++] = p->program[i];
+
+			// Start reading next line of text after the newline
+			start = i + 1;
 		}
 	}
 
-	if (strpos > 0) {
+	if (p->program[p->length - 1] != 0x0d) {
 		/* strange... we seem to have an extra line with no CR at the end... */
-		str[strpos] = 0;
+		int len = p->length - start;
+		char * str = (char *) malloc(sizeof(char) * (len + 1));
+		memcpy(str, p->program + start, len);
+		str[len] = 0;
 		pushstring(&sv, str);
-	} else {
-		/* we grabbed all that RAM for nothing. Darn! */
-		free(str);
 	}
 
 	return sv;
@@ -519,7 +506,7 @@ dialog buildparamdialog(ZZTworld * w, int x, int y)
 			name = buildparamdescription(zztBoardGetBlock(w), tile.param->leaderindex);
 		else
 			name = str_dup("(none)");
-		
+
 		_addlabel("Leader");
 		_addoption(name, ID_LEADER);
 
@@ -530,7 +517,7 @@ dialog buildparamdialog(ZZTworld * w, int x, int y)
 			name = buildparamdescription(zztBoardGetBlock(w), tile.param->followerindex);
 		else
 			name = str_dup("(none)");
-		
+
 		_addlabel("Follower");
 		_addoption(name, ID_FOLLOWER);
 
@@ -1213,7 +1200,7 @@ int paramlistdialog(displaymethod * d, ZZTblock * block, int curparam, char * ti
 	paramlist = buildparamlist(block);
 	svmovetofirst(&paramlist);
 	preinsertstring(&paramlist, str_dup("(none)"));
-	
+
 	/* Move to the current param */
 	svmoveby(&paramlist, curparam);
 
