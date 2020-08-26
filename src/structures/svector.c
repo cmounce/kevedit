@@ -413,11 +413,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 			sv->cur->next->s[0] == ' ') {
 		/* next line either does not exist, is blank, is a zoc command,
 		 * or is indented; so, we create a new, blank line to wordwrap onto */
-
-		char *newnode;
-		newnode = (char *) malloc(editwidth + 2);
-		newnode[0] = 0;
-		insertstring(sv, newnode);
+		insertstring(sv, str_dup(""));
 	} else {
 		/* we can put text at the beginning of the next line; append a space
 		 * to end of newstr in preparation. */

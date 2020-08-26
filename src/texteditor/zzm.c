@@ -56,7 +56,7 @@ stringvector zzmpullsong(stringvector * zzmv, int songnum)
 			}
 		}
 	}
-	
+
 	return songlines;
 }
 
@@ -75,20 +75,20 @@ int zzmpicksong(stringvector * zzmv, displaymethod * d)
 	initstringvector(&rawtitles);
 
 
-	pushstring(&songtitles, strcpy((char *) malloc(42), "@here"));
+	pushstring(&songtitles, str_dup("@here"));
 	/* put header info at top of songtitles */
 	for (curline = zzmv->first; curline != NULL; curline = curline->next) {
 		if (curline->s != NULL &&
 		    str_equ(curline->s, "; $TITLE ", STREQU_UNCASE | STREQU_FRONT)) {
-			newstr = (char *) malloc(43);
+			newstr = (char *) malloc(strlen("$") + strlen(curline->s + 9) + 1);
 			strcpy(newstr, "$");
-			strncat(newstr, curline->s + 9, 41);
+			strcat(newstr, curline->s + 9);
 			for (i = 0; i < strlen(newstr); i++)
 				if (newstr[i] == '~')
 					newstr[i] = ' ';
 
 			pushstring(&songtitles, newstr);
-			pushstring(&songtitles, strcpy((char *) malloc(2), ""));
+			pushstring(&songtitles, str_dup(""));
 		}
 	}
 
@@ -115,7 +115,7 @@ int zzmpicksong(stringvector * zzmv, displaymethod * d)
 		for (rawtitles.cur = rawtitles.first->next; rawtitles.cur != NULL; rawtitles.cur = rawtitles.cur->next) {
 			curstr = rawtitles.cur->s;
 			sscanf(rawtitles.cur->s, "%d", &valcur);
-			
+
 			/* Find place to insert curstr */
 			nodepos = rawtitles.cur;
 			while (nodepos != rawtitles.first && (sscanf(nodepos->prev->s, "%d", &valprev), valprev) > valcur) {

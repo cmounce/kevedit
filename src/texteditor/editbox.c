@@ -77,7 +77,7 @@ void draweditpanel(int insertflag, int wrapwidth, int zocmode, displaymethod * d
 {
 	char buf[10] = "";
 	drawsidepanel(d, PANEL_EDIT);
-	
+
 	d->print(76, 6,  YELLOW_F | BRIGHT_F | BLUE_B, (insertflag ? "on" : "off"));
 
 	sprintf(buf, "%d", wrapwidth);
@@ -170,7 +170,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 
 	/* if there is no string, add one */
 	if (sv->cur == NULL || sv->first == NULL || sv->last == NULL)
-		pushstring(sv, strcpy((char *) malloc(editwidth + 2), ""));
+		pushstring(sv, str_dup(""));
 
 	if (sv->cur == NULL)
 		return 0;
@@ -188,7 +188,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 				centerstr = centerstr->next;
 		}
 	}
-	
+
 	/* Check for NULL after advancing past @title, if we did so */
 	if (centerstr == NULL)
 		return 0;
@@ -575,7 +575,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 
 						/* Display the help file with the command as the topic */
 						helpsectiontopic("langref", tmpstr, d);
-						
+
 						free(tmpstr);
 					} else {
 						/* Display the oop help file */
@@ -600,7 +600,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 					{
 						stringvector filetypelist;
 						char* filename = NULL;
-						
+
 						initstringvector(&filetypelist);
 
 						pushstring(&filetypelist, "*.zoc");
@@ -708,13 +708,14 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 									/* copy song into sv */
 									sv->cur = centerstr;
 									for (song.cur = song.first; song.cur != NULL; song.cur = song.cur->next) {
-										tmpstr = (char*) malloc(editwidth + 2);
+										char * prefix = "#play ";
+										tmpstr = (char *) malloc(strlen(prefix) + strlen(song.cur->s) + 1);
 
 										if (flags & EDITBOX_ZOCMODE) {
-											strcpy(tmpstr, "#play ");
-											strncat(tmpstr, song.cur->s, editwidth - 6);
+											strcpy(tmpstr, prefix);
+											strcat(tmpstr, song.cur->s);
 										} else {
-											strncpy(tmpstr, song.cur->s, editwidth);
+											strcpy(tmpstr, song.cur->s);
 										}
 
 										preinsertstring(sv, tmpstr);
@@ -775,14 +776,14 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 								selStartPos = selEndPos;
 								selEndPos = swapPos;
 							}
-							
+
 							/* Remove everything between selStartPos and selEndPos */
 							deltaPos = selEndPos - selStartPos;
 							for (i = selEndPos; i < strlen(centerstr->s); i++) {
 								centerstr->s[i - deltaPos] = centerstr->s[i];
 							}
 							centerstr->s[i - deltaPos] = '\0';
-							
+
 							/* Move the cursor to the starting position of the cut */
 							pos = selStartPos;
 						} else {
@@ -851,7 +852,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 
 				case DKEY_ENTER:
 					/* Enter */
-					tmpstr = (char*) malloc(editwidth + 2);
+					tmpstr = (char*) malloc(strlen(centerstr->s) - pos + 1);
 					for (i = pos, j = 0; i < strlen(centerstr->s); i++, j++)
 						tmpstr[j] = centerstr->s[i];
 					centerstr->s[pos] = 0;

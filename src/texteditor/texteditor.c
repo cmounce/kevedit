@@ -933,13 +933,6 @@ void texteditInsertNewline(texteditor * editor)
 	/* Copy everything after the cursor */
 	nextline = str_duplen(editor->curline->s + editor->pos, editor->linewidth);
 
-#if 0
-	nextline = (char*) malloc(editor->linewidth + 2);
-	for (i = editor->pos, j = 0; i < strlen(editor->curline->s); i++, j++)
-		nextline[j] = editor->curline->s[i];
-	tmpstr[j] = 0;
-#endif
-
 	/* Truncate the current line */
 	editor->curline->s[editor->pos] = '\x0';
 

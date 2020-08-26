@@ -155,7 +155,7 @@ int mergesvector(stringvector * dest, stringvector * src, int inspos, int wrapwi
 		stringnode* insertionLine = dest->cur;
 
 		/* Make a new line after dest->cur and put the last string in src in */
-		insertstring(dest, strcpy((char *) malloc(editwidth + 2), src->last->s));
+		insertstring(dest, str_dup(src->last->s));
 
 		/* Wordwrap the last half of the insertion line onto the new line */
 		dest->cur = dest->cur->next;
@@ -168,7 +168,7 @@ int mergesvector(stringvector * dest, stringvector * src, int inspos, int wrapwi
 		/* Insert meat of src below the current line in dest, backward to keep
 		 * it in order. */
 		for (src->cur = src->last->prev; src->cur->prev != NULL; src->cur = src->cur->prev) {
-			insertstring(dest, strcpy((char *) malloc(editwidth + 2), src->cur->s));
+			insertstring(dest, str_dup(src->cur->s));
 		}
 
 		/* Finally, wordwrap the first line in src onto the insertion line */
