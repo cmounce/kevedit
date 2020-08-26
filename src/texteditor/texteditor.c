@@ -1185,39 +1185,28 @@ void texteditInsertCharacter(texteditor * editor, int ch)
 	if (ch == 0)
 		return;
 
-	if (editor->insertflag) {
-		/* insert */
-		if (strlen(editor->curline->s) < (editor->wrapwidth?editor->wrapwidth:editor->linewidth)) {
-			/* insert if there is room */
-			for (i = strlen(editor->curline->s) + 1; i > editor->pos; i--)
-				editor->curline->s[i] = editor->curline->s[i-1];
-
-			editor->curline->s[editor->pos++] = ch;
-			editor->updateflags |= TUD_CENTER;
-		}
-		else if (editor->wrapwidth) {
-			/* no room; wordwrap */
-			texteditInsertCharAndWrap(editor, ch);
-		}
+	/* Easy case: insert mode off, overwriting an existing character */
+	if (!editor->insertflag && editor->curline->s[editor->pos] != 0) {
+		editor->curline->s[editor->pos++] = ch;
+		editor->updateflags |= TUD_CENTER;
+		return;
 	}
-	else {
-		/* easy replace */
-		if (editor->curline->s[editor->pos] == 0) {
-			/* Insert at the end of the line; not so easy. */
-			if (strlen(editor->curline->s) < (editor->wrapwidth?editor->wrapwidth:editor->linewidth)) {
-				editor->curline->s[editor->pos+1] = 0;
-				editor->curline->s[editor->pos++] = ch;
-				editor->updateflags |= TUD_CENTER;
-			}
-			else if (editor->wrapwidth) {
-				/* no room; wordwrap */
-				texteditInsertCharAndWrap(editor, ch);
-			}
-		}
-		else {
-			editor->curline->s[editor->pos++] = ch;
-			editor->updateflags |= TUD_CENTER;
-		}
+
+	/* Handle insert/append */
+	int oldlen = strlen(editor->curline->s);
+	if (oldlen < (editor->wrapwidth ? editor->wrapwidth : editor->linewidth)) {
+		/* there is room */
+		int newlen = oldlen + 1; // Account for the extra character...
+		ensure_stringnode_capacity(editor->curline, newlen + 1); // and the null terminator
+		for (i = newlen; i > editor->pos; i--)
+			editor->curline->s[i] = editor->curline->s[i-1];
+
+		editor->curline->s[editor->pos++] = ch;
+		editor->updateflags |= TUD_CENTER;
+	}
+	else if (editor->wrapwidth) {
+		/* no room; wordwrap */
+		texteditInsertCharAndWrap(editor, ch);
 	}
 }
 
