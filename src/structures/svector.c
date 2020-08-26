@@ -366,6 +366,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 
 	if (longlen <= wrapwidth) {
 		/* no need to wordwrap; we can just copy longstr over sv->cur->s */
+		ensure_stringnode_capacity(sv->cur, longlen + 1);
 		strcpy(sv->cur->s, longstr);
 		/* don't forget to free longstr before leaving */
 		free(longstr);
@@ -400,6 +401,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	longstr[j] = 0;
 
 	/* replace sv->cur->s with shortened longstr */
+	ensure_stringnode_capacity(sv->cur, j + 1);
 	strcpy(sv->cur->s, longstr);
 
 	/* finally: wrap onto next line or new line */
