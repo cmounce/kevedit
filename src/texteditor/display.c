@@ -78,6 +78,14 @@ void texteditUpdateDisplay(texteditor * editor)
 	}
 
 	if (editor->updateflags & TUD_CENTER) {
+		/* Update long-line indicators */
+		if (editor->longlineflags && LINE_CONTINUES_LEFT || 1) {
+			editor->d->putch_discrete(8, 13, 27, 0x20);
+		}
+		if (editor->longlineflags && LINE_CONTINUES_RIGHT || 1) {
+			editor->d->putch_discrete(51, 13, 26, 0x20);
+		}
+
 		/* Draw the center */
 		texteditDisplayLine(editor, 0, editor->curline->s);
 	}
@@ -256,7 +264,7 @@ void texteditDisplayPanel(texteditor * editor)
 		return;
 
 	drawsidepanel(editor->d, PANEL_EDIT);
-	
+
 	editor->d->print(76, 6,  YELLOW_F | BRIGHT_F | BLUE_B, (editor->insertflag ? "on" : "off"));
 
 	sprintf(buf, "%d", editor->wrapwidth);

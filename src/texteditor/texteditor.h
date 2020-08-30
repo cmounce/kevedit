@@ -41,6 +41,10 @@
 #define TEXTED_MAXWIDTH 42
 #define TEXTED_PAGELENGTH 7
 
+/* Flags for long-line indicators */
+#define LINE_CONTINUES_LEFT 0x01
+#define LINE_CONTINUES_RIGHT 0x02
+
 /** A powerful, extendable text editing environment.
  *
  * TEXTEDITOR REFERENCE -- texteditor key actions
@@ -49,7 +53,7 @@
  *   - down     : moves cursor down
  *   - pageup   : moves up 8 lines
  *   - pagedown : moves down 8 lines
- * 
+ *
  * - Scroll/Browse Dialog
  *   - enter    : exit with SCROLL_OK
  *   - escape   : exit with SCROLL_CANCEL
@@ -58,7 +62,7 @@
  *   - right    : exit with BROWSE_FORWARD
  *   - left     : exit with BROWSE_BACKWARD
  *   - backspace: exit with BROWSE_BACK
- * 
+ *
  * - Text Editor
  *   - Basic
  *     - left     : moves cursor left
@@ -106,6 +110,8 @@ typedef struct {
 	int linewidth;
 	/** Width at which a line should be wrapped if possible. */
 	int wrapwidth;
+	/** Whether to show long-line indicators on the left/right side */
+	int longlineflags;
 
 	/* Control flags */
 	int updateflags;    /**< Show what parts of the display need to be updated. */
