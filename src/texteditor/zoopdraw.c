@@ -104,9 +104,22 @@ void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 				}
 			}
 
-			if (x >= 0)
-				/* TODO: don't write past drawer.length */
-				drawer.display->print_discrete(x, drawer.y, colour, current->text);
+			if (x >= 0) {
+				int max_x = drawer.x + drawer.length - 1;
+				char *text = current->text;
+				char c;
+				while ((c = *text++) && x <= max_x) {
+					if (x == max_x && (*text)) {
+						// We hit the end of the printing area, but the line continues
+						// Print long-line indicator instead of the character
+						char indicator_color = makecolor(colorbg(colour), colorfg(colour) & ~BRIGHT_F, 0);
+						drawer.display->putch_discrete(x++, drawer.y, 26, indicator_color);
+						break;
+					} else {
+						drawer.display->putch_discrete(x++, drawer.y, c, colour);
+					}
+				}
+			}
 		}
 
 		/* Advance to next component */
