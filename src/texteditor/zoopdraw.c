@@ -35,6 +35,9 @@ int zztoopDrawGetColour(ZZTOOPdrawer drawer, ZZTOOPcomponent * component);
 /* Draw a music component */
 void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component);
 
+/* Draw long-line indicator */
+void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char original_color);
+
 void zztoopInitDrawer(ZZTOOPdrawer * drawer)
 {
 	drawer->display = NULL;
@@ -111,10 +114,8 @@ void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 				while ((c = *text++) && x <= max_x) {
 					if (x == max_x && (*text)) {
 						// We hit the end of the printing area, but the line continues
-						// Print long-line indicator instead of the character
-						char indicator_color = makecolor(colorbg(colour), colorfg(colour) & ~BRIGHT_F, 0);
-						drawer.display->putch_discrete(x++, drawer.y, 26, indicator_color);
-						break;
+						zztoopDrawLongLineIndicator(drawer, x, drawer.y, colour);
+						return; // Don't draw beyond boundary
 					} else {
 						drawer.display->putch_discrete(x++, drawer.y, c, colour);
 					}
@@ -158,13 +159,10 @@ void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component)
 	int i;
 	char * music = component->text;
 	const int defaultcolour = drawer.colours[component->type];
+	const int max_x = drawer.x + drawer.length - 1;
 
 	for (i = 0; i < strlen(music); i++) {
 		int colour = defaultcolour;
-
-		/* Don't draw past the boundary */
-		if (component->pos + i > drawer.length)
-			return;
 
 		switch (toupper(music[i])) {
 			/* Time determiners */
@@ -192,8 +190,20 @@ void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component)
 					colour = drawer.musiccolours[ZOOPMUSIC_DRUM];
 		}
 
-		drawer.display->putch_discrete(drawer.x + component->pos + i, drawer.y, music[i], colour);
+		const int x = drawer.x + component->pos + i;
+		if (x == max_x && music[i+1]) {
+			zztoopDrawLongLineIndicator(drawer, x, drawer.y, colour);
+			return; // Don't draw past the boundary
+		} else {
+			drawer.display->putch_discrete(x, drawer.y, music[i], colour);
+		}
 	}
+}
+
+void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char text_color) {
+	const char indicator_color = makecolor(colorbg(text_color), colorfg(text_color) & ~BRIGHT_F, 0);
+	const char right_arrow = 26;
+	drawer.display->putch_discrete(x, y, right_arrow, indicator_color);
 }
 
 
