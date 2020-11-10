@@ -126,6 +126,7 @@ texteditor * createtexteditor(char * title, stringvector * text, displaymethod *
 	/* Remember, text may be NULL, so use editor->text. */
 	editor->curline = editor->text->cur;
 	editor->pos = 0;
+	editor->sidescroll = 0;
 
 	editor->editflag = 1;
 	editor->highlightflag = 1;
@@ -264,6 +265,20 @@ void texteditHandleInput(texteditor * editor)
 	/* Handle cursor movements. */
 	texteditHandleScrolling(editor);
 	texteditHandleEditMovement(editor);
+
+	// CWM TODO: Move to its own function
+	int new_sidescroll = 0;
+	if (strlen(editor->curline->s) > TEXTED_MAXWIDTH) {
+		const int buffer = 5;
+		int center_area = TEXTED_MAXWIDTH - 2*buffer;
+		int num_sidescrolls = (editor->pos - buffer)/center_area;
+		new_sidescroll = num_sidescrolls*center_area;
+	}
+	//int new_sidescroll = (editor->pos > 20) ? 10: 0; // CWM HACK TODO
+	if (new_sidescroll != editor->sidescroll) {
+		editor->sidescroll = new_sidescroll;
+		editor->updateflags |= TUD_CENTER;
+	}
 }
 
 /**

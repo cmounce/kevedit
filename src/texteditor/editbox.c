@@ -1127,6 +1127,7 @@ void displayzoc(int x, int y, char *s, int format, int firstline, displaymethod 
 		parser->flags |= ZOOPFLAG_FIRSTLINE;
 
 	drawer.x = x; drawer.y = y;
+	drawer.sidescroll = 0;
 	drawer.length = 42;  /* TODO: replace 42 w/ constant or something */
 
 	zztoopDraw(drawer, zztoopParseLine(parser));

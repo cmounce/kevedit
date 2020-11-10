@@ -99,6 +99,7 @@ typedef struct {
 	stringvector * text;
 	stringnode * curline;   /**< Current line. */
 	int pos;                /**< Cursor position on line. */
+	int sidescroll;         /**< Line is scrolled left this many chars. */
 
 	/* Configuration flags. */
 	int editflag;       /**< True when text is editable. */

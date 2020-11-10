@@ -134,7 +134,7 @@ void texteditDisplayText(texteditor * editor)
 
 	texteditDisplaySelection(editor);
 
-	editor->d->cursorgo(baseX + editor->pos, baseY);
+	editor->d->cursorgo(baseX + editor->pos - editor->sidescroll, baseY);
 	editor->d->update(3, 4, 51, 19);
 }
 
@@ -166,6 +166,7 @@ void texteditDisplayLine(texteditor * editor, int offset, char * line)
 		/* Set up drawer coords. */
 		editor->drawer.x = baseX;
 		editor->drawer.y = baseY + offset;
+		editor->drawer.sidescroll = (offset == 0) ? editor->sidescroll : 0;
 
 		/* Parse and draw the line. */
 		zztoopDraw(editor->drawer, zztoopParseLine(parser));

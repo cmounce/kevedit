@@ -35,11 +35,16 @@
 
 #define ZOOPMUSIC_MAX      6
 
+/* Long-line indicators */
+#define LONG_LINE_LEFT	27
+#define LONG_LINE_RIGHT 26
+
 typedef struct ZZTOOPdrawer {
 	displaymethod * display;  /* Draw here */
 
-	int x, y;     /* Position to draw at */
-	int length;   /* Maximum length of drawn line */
+	int x, y;     	/* Position on screen to start drawing */
+	int length;   	/* Maximum number of characters to draw */
+	int sidescroll; /* Scroll text sideways by skipping this many characters at start */
 
 	int helpformatting;  /* True if output should be formatted */
 

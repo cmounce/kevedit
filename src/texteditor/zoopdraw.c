@@ -36,7 +36,7 @@ int zztoopDrawGetColour(ZZTOOPdrawer drawer, ZZTOOPcomponent * component);
 void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component);
 
 /* Draw long-line indicator */
-void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char original_color);
+void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char c, char original_color);
 
 void zztoopInitDrawer(ZZTOOPdrawer * drawer)
 {
@@ -57,7 +57,7 @@ void zztoopInitDrawer(ZZTOOPdrawer * drawer)
 
 void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 {
-	ZZTOOPcomponent * current = components;
+	ZZTOOPcomponent * current;
 	int textonly = 0;
 
 	if (drawer.display == NULL || components == NULL)
@@ -68,21 +68,21 @@ void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 		textonly = 1;
 
 	/* Loop through each component */
-	while (current != NULL) {
+	for (current = components; current != NULL; current = current->next) {
 		if (current->text != NULL && current->text[0] != '\x0') {
 			int colour = zztoopDrawGetColour(drawer, current);
-			int x = drawer.x + current->pos;
+			int x = drawer.x - drawer.sidescroll + current->pos;
 
 			/* Draw musical notation */
 			if (current->type == ZOOPTYPE_MUSIC) {
 				zztoopDrawMusic(drawer, current);
-				x = -1;
+				continue;
 			}
 
 			/* In textonly mode, only display the text type */
 			if (textonly) {
 				if (current->type != ZOOPTYPE_TEXT) {
-					x = -1;
+					continue;
 				} else {
 					/* Most text types require special processing */
 					switch (current->value) {
@@ -107,24 +107,32 @@ void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 				}
 			}
 
-			if (x >= 0) {
-				int max_x = drawer.x + drawer.length - 1;
-				char *text = current->text;
-				char c;
-				while ((c = *text++) && x <= max_x) {
-					if (x == max_x && (*text)) {
-						// We hit the end of the printing area, but the line continues
-						zztoopDrawLongLineIndicator(drawer, x, drawer.y, colour);
-						return; // Don't draw beyond boundary
-					} else {
-						drawer.display->putch_discrete(x++, drawer.y, c, colour);
-					}
+			// CWM TODO: Clean this up
+			char *text = current->text;
+			int max_x = drawer.x + drawer.length - 1;
+			for (text = current->text; (*text) && x <= max_x; text++, x++) {
+				if (x < drawer.x) {
+					// We're before the drawing bounds: keep iterating
+					continue;
+				} else if (x > max_x) {
+					// We're after the drawing bounds
+					// Since we never go backwards, we can exit now
+					return;
+				}
+
+				if (x == drawer.x && drawer.sidescroll > 0) {
+					// We're at the start of the window we're allowed to draw,
+					// but we scrolled past something at the start
+					zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_LEFT, colour);
+				} else if (x == max_x && text[1] != '0') {
+					// We're at the end of the drawing window,
+					// and there's more stuff ahead
+					zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_RIGHT, colour);
+				} else {
+					drawer.display->putch_discrete(x, drawer.y, *text, colour);
 				}
 			}
 		}
-
-		/* Advance to next component */
-		current = current->next;
 	}
 }
 
@@ -190,9 +198,13 @@ void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component)
 					colour = drawer.musiccolours[ZOOPMUSIC_DRUM];
 		}
 
-		const int x = drawer.x + component->pos + i;
-		if (x == max_x && music[i+1]) {
-			zztoopDrawLongLineIndicator(drawer, x, drawer.y, colour);
+		const int x = drawer.x - drawer.sidescroll + component->pos + i;
+		if (x < drawer.x) {
+			continue;
+		} else if (x == drawer.x && drawer.sidescroll > 0) {
+			zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_LEFT, colour);
+		} else if (x == max_x && music[i+1]) {
+			zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_RIGHT, colour);
 			return; // Don't draw past the boundary
 		} else {
 			drawer.display->putch_discrete(x, drawer.y, music[i], colour);
@@ -200,10 +212,9 @@ void zztoopDrawMusic(ZZTOOPdrawer drawer, ZZTOOPcomponent * component)
 	}
 }
 
-void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char text_color) {
+void zztoopDrawLongLineIndicator(ZZTOOPdrawer drawer, int x, int y, char arrow, char text_color) {
 	const char indicator_color = makecolor(colorbg(text_color), colorfg(text_color) & ~BRIGHT_F, 0);
-	const char right_arrow = 26;
-	drawer.display->putch_discrete(x, y, right_arrow, indicator_color);
+	drawer.display->putch_discrete(x, y, arrow, indicator_color);
 }
 
 
