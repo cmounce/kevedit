@@ -40,6 +40,7 @@
 
 #define TEXTED_MAXWIDTH 42
 #define TEXTED_PAGELENGTH 7
+#define TEXTED_NOWRAP 0
 
 /* Flags for long-line indicators */
 #define LINE_CONTINUES_LEFT 0x01

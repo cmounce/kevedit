@@ -270,7 +270,7 @@ void texteditDisplayPanel(texteditor * editor)
 
 	sprintf(buf, "%d", editor->wrapwidth);
 
-	if (editor->wrapwidth != 0)
+	if (editor->wrapwidth != TEXTED_NOWRAP)
 		editor->d->print(76, 8, YELLOW_F | BRIGHT_F | BLUE_B, buf);
 	else
 		editor->d->print(72, 8, YELLOW_F | BRIGHT_F | BLUE_B, "off");

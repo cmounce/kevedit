@@ -411,19 +411,19 @@ int texteditHandleEditKey(texteditor * editor)
 
 		/***** Wrap width *****/
 		case DKEY_ALT_MINUS:
-			if (editor->wrapwidth > 10) {
-				editor->wrapwidth--;
-			} else {
+			if (editor->wrapwidth == TEXTED_NOWRAP) {
 				editor->wrapwidth = TEXTED_MAXWIDTH;
+			} else if (editor->wrapwidth > 10 && editor->wrapwidth <= TEXTED_MAXWIDTH) {
+				editor->wrapwidth--;
 			}
 			editor->updateflags |= TUD_PANEL;
 			break;
 
 		case DKEY_ALT_PLUS:
-			if (editor->wrapwidth < TEXTED_MAXWIDTH) {
+			if (editor->wrapwidth == TEXTED_MAXWIDTH) {
+				editor->wrapwidth = TEXTED_NOWRAP;
+			} else if (editor->wrapwidth >= 10 && editor->wrapwidth < TEXTED_MAXWIDTH) {
 				editor->wrapwidth++;
-			} else {
-				editor->wrapwidth = 10;
 			}
 			editor->updateflags |= TUD_PANEL;
 			break;
