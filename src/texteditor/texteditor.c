@@ -1153,7 +1153,9 @@ int texteditInsertASCII(texteditor * editor)
 		/* change the character to a string */
 		number = str_duplen("", 64);
 		sprintf(number, "%d", choice);
+		int length = strlen(editor->curline->s) + strlen(number);
 
+		ensure_stringnode_capacity(editor->curline, length + 1);
 		strcat(editor->curline->s, number);
 
 		free(number);
