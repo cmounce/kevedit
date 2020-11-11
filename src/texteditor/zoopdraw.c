@@ -124,7 +124,7 @@ void zztoopDraw(ZZTOOPdrawer drawer, ZZTOOPcomponent * components)
 					// We're at the start of the window we're allowed to draw,
 					// but we scrolled past something at the start
 					zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_LEFT, colour);
-				} else if (x == max_x && text[1] != '0') {
+				} else if (x == max_x && text[1]) {
 					// We're at the end of the drawing window,
 					// and there's more stuff ahead
 					zztoopDrawLongLineIndicator(drawer, x, drawer.y, LONG_LINE_RIGHT, colour);

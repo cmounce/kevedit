@@ -274,7 +274,6 @@ void texteditHandleInput(texteditor * editor)
 		int num_sidescrolls = (editor->pos - buffer)/center_area;
 		new_sidescroll = num_sidescrolls*center_area;
 	}
-	//int new_sidescroll = (editor->pos > 20) ? 10: 0; // CWM HACK TODO
 	if (new_sidescroll != editor->sidescroll) {
 		editor->sidescroll = new_sidescroll;
 		editor->updateflags |= TUD_CENTER;
