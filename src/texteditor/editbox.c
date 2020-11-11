@@ -522,7 +522,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 							sv->cur = centerstr->next;
 							tmpstr = removestring(sv);
 							sv->cur = centerstr;
-							pos = wordwrap(sv, tmpstr, i, -1, wrapwidth, editwidth);
+							pos = wordwrap(sv, tmpstr, i, -1, wrapwidth);
 							centerstr = sv->cur;
 							free(tmpstr);
 							updateflags = U_CENTER | U_BOTTOM | U_TOP;
@@ -811,7 +811,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 							 * the beginning of tmpstr. Negative tracking values should
 							 * be used only by wordwrap for internal purposes, but
 							 * necessity warrents in this case.     vv    */
-							pos = wordwrap(sv, tmpstr, selStartPos, -1, wrapwidth, editwidth);
+							pos = wordwrap(sv, tmpstr, selStartPos, -1, wrapwidth);
 							centerstr = sv->cur;  /* Follow cursor */
 							/* tmpstr is our responsability */
 							free(tmpstr);
@@ -844,7 +844,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 							strbuf[i] = ' ';
 						strbuf[i] = 0;
 						sv->cur = centerstr;
-						pos = wordwrap(sv, strbuf, pos, pos, wrapwidth, editwidth);
+						pos = wordwrap(sv, strbuf, pos, pos, wrapwidth);
 						centerstr = sv->cur;
 						updateflags = U_EDITAREA;
 					}
@@ -900,7 +900,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 							sv->cur = centerstr->prev;
 							tmpstr = removestring(sv);
 							sv->cur = centerstr;
-							pos = wordwrap(sv, tmpstr, 0, 0, wrapwidth, editwidth);
+							pos = wordwrap(sv, tmpstr, 0, 0, wrapwidth);
 							centerstr = sv->cur;
 							free(tmpstr);
 							updateflags = U_EDITAREA;
@@ -980,7 +980,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 							strbuf[0] = key;
 							strbuf[1] = 0;
 							sv->cur = centerstr;
-							pos = wordwrap(sv, strbuf, pos, pos, wrapwidth, editwidth);
+							pos = wordwrap(sv, strbuf, pos, pos, wrapwidth);
 							centerstr = sv->cur;
 							updateflags = U_EDITAREA;
 						}
@@ -998,7 +998,7 @@ int editbox(char *title, stringvector * sv, int editwidth, int flags, displaymet
 								strbuf[0] = key;
 								strbuf[1] = 0;
 								sv->cur = centerstr;
-								pos = wordwrap(sv, strbuf, pos, pos, wrapwidth, editwidth);
+								pos = wordwrap(sv, strbuf, pos, pos, wrapwidth);
 								centerstr = sv->cur;
 								updateflags = U_EDITAREA;
 							}

@@ -147,7 +147,7 @@ int mergesvector(stringvector * dest, stringvector * src, int inspos, int wrapwi
 
 	if (src->first == src->last) {
 		/* Insert inside current line of dest */
-		return wordwrap(dest, src->first->s, inspos, inspos, wrapwidth, editwidth);
+		return wordwrap(dest, src->first->s, inspos, inspos, wrapwidth);
 	} else {
 		/* Chop dest->cur->s in half at inspos. wordwrap the src->first onto
 		 * the end of the left half. Insert the remainder of src into dest, then
@@ -159,7 +159,7 @@ int mergesvector(stringvector * dest, stringvector * src, int inspos, int wrapwi
 
 		/* Wordwrap the last half of the insertion line onto the new line */
 		dest->cur = dest->cur->next;
-		wordwrap(dest, insertionLine->s + inspos, strlen(dest->cur->s), 0, wrapwidth, editwidth);
+		wordwrap(dest, insertionLine->s + inspos, strlen(dest->cur->s), 0, wrapwidth);
 
 		/* Return to insertion line and truncate it */
 		dest->cur = insertionLine;
@@ -172,7 +172,7 @@ int mergesvector(stringvector * dest, stringvector * src, int inspos, int wrapwi
 		}
 
 		/* Finally, wordwrap the first line in src onto the insertion line */
-		wordwrap(dest, src->first->s, inspos, 0, wrapwidth, editwidth);
+		wordwrap(dest, src->first->s, inspos, 0, wrapwidth);
 
 		dest->cur = insertionLine;
 		return inspos;

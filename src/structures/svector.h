@@ -93,7 +93,7 @@ void inssortstringvector(stringvector* v, int (*compare)(const char* s1, const c
 /***** Wordwrap **********************************/
 
 /* wordwrap() - wrap text in sv */
-int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, int editwidth);
+int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth);
 
 /***** Allocation helpers *****/
 void ensure_stringnode_capacity(stringnode *node, int min_capacity);

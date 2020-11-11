@@ -1022,7 +1022,7 @@ void texteditBackspace(texteditor * editor)
 			editor->text->cur = editor->curline;
 
 			/* Wrap the previous line onto the beginning of the current line */
-			editor->pos = wordwrap(editor->text, prevline, 0, 0, editor->wrapwidth, editor->linewidth);
+			editor->pos = wordwrap(editor->text, prevline, 0, 0, editor->wrapwidth);
 			editor->curline = editor->text->cur;
 
 			free(prevline);
@@ -1082,7 +1082,7 @@ void texteditDelete(texteditor * editor)
 			editor->text->cur = editor->curline;
 
 			/* Wordwrap the next line onto the end of the current line */
-			editor->pos = wordwrap(editor->text, nextline, i, -1, editor->wrapwidth, editor->linewidth);
+			editor->pos = wordwrap(editor->text, nextline, i, -1, editor->wrapwidth);
 			editor->curline = editor->text->cur;
 
 			free(nextline);
@@ -1203,7 +1203,7 @@ void texteditInsertCharacter(texteditor * editor, int ch)
 
 	/* Handle insert/append */
 	int oldlen = strlen(editor->curline->s);
-	if (oldlen < (editor->wrapwidth ? editor->wrapwidth : editor->linewidth)) {
+	if (oldlen < editor->wrapwidth || editor->wrapwidth == TEXTED_NOWRAP) {
 		/* there is room */
 		int newlen = oldlen + 1; // Account for the extra character...
 		ensure_stringnode_capacity(editor->curline, newlen + 1); // and the null terminator
@@ -1233,7 +1233,7 @@ void texteditInsertCharAndWrap(texteditor * editor, int ch)
 
 	editor->text->cur = editor->curline;
 
-	editor->pos = wordwrap(editor->text, inserttext, editor->pos, editor->pos, editor->wrapwidth, editor->linewidth);
+	editor->pos = wordwrap(editor->text, inserttext, editor->pos, editor->pos, editor->wrapwidth);
 
 	editor->curline = editor->text->cur;
 

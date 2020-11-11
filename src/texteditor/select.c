@@ -80,7 +80,7 @@ selectionBounds texteditGetSelectionBounds(texteditor * editor)
 			bounds.startPos = editor->selectpos;
 		}
 	}
-	
+
 	return bounds;
 }
 
@@ -167,7 +167,7 @@ void texteditClearSelectedText(texteditor * editor)
 			line[i - selectionLen] = line[i];
 		}
 		line[i - selectionLen] = '\0';
-		
+
 		/* Move the cursor to the starting position of the cut. */
 		editor->pos = bounds.startPos;
 
@@ -195,7 +195,7 @@ void texteditClearSelectedText(texteditor * editor)
 		 * the beginning of cutend. Negative tracking values should
 		 * be used only by wordwrap for internal purposes, but
 		 * necessity warrents in this case.     vv    */
-		editor->pos = wordwrap(editor->text, unselectedEndString, bounds.startPos, -1, editor->wrapwidth, editor->linewidth);
+		editor->pos = wordwrap(editor->text, unselectedEndString, bounds.startPos, -1, editor->wrapwidth);
 		editor->curline = editor->text->cur;
 
 		free(endString);

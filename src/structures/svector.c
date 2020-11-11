@@ -310,14 +310,14 @@ void inssortstringvector(stringvector* v, int (*compare)(const char* s1, const c
  *          inspos:    where in sv to insert str
  *          pos:       cursor position in sv->cur->s to track; a negative value
  *                     indicates that -pos - 1 is position in str
- *          wrapwidth: at what cursor position to wrap to next line
- *          editwidth: maximum width of a line in sv
+ *          wrapwidth: at what cursor position to wrap to next line.
+ * 					   wordwrap == 0 inserts the string without wrapping.
  * return:  new location of pos. sv->cur is changed to reflect line on which
  *          pos now resides.
  *
  * NOTE: str will not be modified nor free()d in any way.
  */
-int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, int editwidth)
+int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth)
 {
 	int i, j, k;		/* general counters */
 	char *longstr;	/* Combination of sv->cur->s & str */
@@ -327,7 +327,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	char *newstr;     /* new string for next line */
 
 	/* check for bad data */
-	if (sv->cur == NULL || sv->cur->s == NULL || wrapwidth > editwidth || editwidth < 2 || inspos > strlen(sv->cur->s))
+	if (sv->cur == NULL || sv->cur->s == NULL || inspos > strlen(sv->cur->s))
 		return -1;
 
 	/* first determine longlen and allocate longstr */
@@ -364,7 +364,7 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	else
 		newpos = pos + strlen(str);
 
-	if (longlen <= wrapwidth) {
+	if (longlen <= wrapwidth || wrapwidth == 0) {
 		/* no need to wordwrap; we can just copy longstr over sv->cur->s */
 		ensure_stringnode_capacity(sv->cur, longlen + 1);
 		strcpy(sv->cur->s, longstr);
@@ -428,11 +428,11 @@ int wordwrap(stringvector * sv, char *str, int inspos, int pos, int wrapwidth, i
 	if (newpos < 0) {
 		/* cursor should be tracked on next line */
 		sv->cur = sv->cur->next;
-		newpos = wordwrap(sv, newstr, 0, newpos, wrapwidth, editwidth);
+		newpos = wordwrap(sv, newstr, 0, newpos, wrapwidth);
 	} else {
 		stringnode * nodeptr = sv->cur;
 		sv->cur = sv->cur->next;
-		wordwrap(sv, newstr, 0, 0, wrapwidth, editwidth);
+		wordwrap(sv, newstr, 0, 0, wrapwidth);
 		sv->cur = nodeptr;
 	}
 
@@ -453,8 +453,8 @@ void ensure_stringnode_capacity(stringnode *node, int min_capacity) {
 
 	// Choose new capacity for node
 	int new_capacity = 0;
-	int sizes[] = {8, 16, 32, 42 + 1 /* standard line length */, 64};
-	for (int *size = sizes; *size != 0; size++) {
+	int sizes[] = {8, 16, 32, 42 + 1 /* standard line length */, 64, 0 /* NULL */};
+	for (int *size = sizes; *size; size++) {
 		// Pick first value that works from table of preferred sizes
 		new_capacity = *size;
 		if (new_capacity >= min_capacity) {

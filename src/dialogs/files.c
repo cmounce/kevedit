@@ -56,7 +56,7 @@ stringvector filetosvector(char* filename, int wrapwidth, int editwidth)
 
 	initstringvector(&v);
 
-	/* Wordwarp requires a greater or equal editwidth */
+	/* Wordwrap requires a greater or equal editwidth */
 	if (wrapwidth > editwidth)
 		wrapwidth = editwidth;
 
@@ -121,7 +121,7 @@ stringvector filetosvector(char* filename, int wrapwidth, int editwidth)
 				/* Push an empty string and wordwrap the buffer onto it */
 				pushstring(&v, str);
 				v.cur = v.last;
-				wordwrap(&v, buffer, 0, 0, wrapwidth, editwidth);
+				wordwrap(&v, buffer, 0, 0, wrapwidth);
 			}
 		}
 
