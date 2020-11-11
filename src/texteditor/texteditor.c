@@ -266,18 +266,7 @@ void texteditHandleInput(texteditor * editor)
 	texteditHandleScrolling(editor);
 	texteditHandleEditMovement(editor);
 
-	// CWM TODO: Move to its own function
-	int new_sidescroll = 0;
-	if (strlen(editor->curline->s) > TEXTED_MAXWIDTH) {
-		const int buffer = 5;
-		int center_area = TEXTED_MAXWIDTH - 2*buffer;
-		int num_sidescrolls = (editor->pos - buffer)/center_area;
-		new_sidescroll = num_sidescrolls*center_area;
-	}
-	if (new_sidescroll != editor->sidescroll) {
-		editor->sidescroll = new_sidescroll;
-		editor->updateflags |= TUD_CENTER;
-	}
+	texteditUpdateSidescroll(editor);
 }
 
 /**
@@ -503,6 +492,42 @@ int texteditHandleEditKey(texteditor * editor)
 	}
 
 	return next_key;
+}
+
+/**
+ * @relates texteditor
+ * @brief Scroll long lines left/right depending on cursor position
+ **/
+void texteditUpdateSidescroll(texteditor * editor)
+{
+	int new_sidescroll = 0;
+	const int line_length = strlen(editor->curline->s);
+
+	// Only scroll if the line is longer than the editor.
+	if (line_length > TEXTED_MAXWIDTH) {
+		/**
+		 * Scroll with overlap for ease of editing.
+		 * For example, if the full line of code reads:
+		 * 		"Hello, ZZT world!"
+		 * Then our windows over that data might look like these:
+		 *      |Hello, ZZ>|
+		 *           |< ZZT wor>|
+		 *                |<world!   |
+		 * Here, we overlap by three characters.
+		 * Note that we have to account for long-line continuation markers.
+		 */
+
+		const int overlap = 5; // Overlap this much when scrolling
+		const int indicator_width = 2; // One arrow on the left, one on the right
+		const int scroll_amount = TEXTED_MAXWIDTH - indicator_width - overlap;
+		const int num_scrolls = (editor->pos - overlap - 1)/scroll_amount;
+		new_sidescroll = num_scrolls*scroll_amount;
+	}
+
+	if (new_sidescroll != editor->sidescroll) {
+		editor->sidescroll = new_sidescroll;
+		editor->updateflags |= TUD_CENTER;
+	}
 }
 
 /**
