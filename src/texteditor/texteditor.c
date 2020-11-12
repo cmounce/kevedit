@@ -974,7 +974,10 @@ void texteditInsertNewline(texteditor * editor)
 	char * nextline;
 
 	/* Copy everything after the cursor */
-	nextline = str_duplen(editor->curline->s + editor->pos, editor->linewidth);
+	char * to_copy = editor->curline->s + editor->pos;
+	int to_copy_length = strlen(to_copy);
+	nextline = malloc(to_copy_length + 1);
+	strncpy(nextline, to_copy, to_copy_length + 1);
 
 	/* Truncate the current line */
 	editor->curline->s[editor->pos] = '\x0';
