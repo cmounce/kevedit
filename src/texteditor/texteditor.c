@@ -56,6 +56,7 @@ void texteditHandleInput(texteditor * editor);
 void texteditHandleScrolling(texteditor * editor);
 void texteditHandleEditMovement(texteditor * editor);
 int texteditHandleEditKey(texteditor * editor);
+void texteditUpdateSidescroll(texteditor * editor);
 
 int texteditGrabTitle(texteditor * editor);
 int texteditIgnoreFirstLine(texteditor * editor);
@@ -506,22 +507,25 @@ void texteditUpdateSidescroll(texteditor * editor)
 	// Only scroll if the line is longer than the editor.
 	if (line_length > TEXTED_MAXWIDTH) {
 		/**
-		 * Scroll with overlap for ease of editing.
-		 * For example, if the full line of code reads:
-		 * 		"Hello, ZZT world!"
-		 * Then our windows over that data might look like these:
-		 *      |Hello, ZZ>|
-		 *           |< ZZT wor>|
-		 *                |<world!   |
-		 * Here, we overlap by three characters.
-		 * Note that we have to account for long-line continuation markers.
+		 * Scroll sideways, leaving a little bit of overlap on the left side.
+		 *
+		 * For example, a long line might appear in the editor like this:
+		 * 		|Can you believe that this line is fifty-s>|
+		 *                                               ^
+		 * The cursor is on the "s" in "fifty-seven", and a right-pointing
+		 * arrow indicates that the line continues in that direction. Moving
+		 * the cursor one space to the right causes the line to scroll:
+		 * 		|<fty-seven chars long?                    |
+		 *             ^
+		 * Most characters have been scrolled out of view, but an overlap of
+		 * several preceding characters are displayed for context, as well as
+		 * a left-pointing arrow.
 		 */
-
-		const int overlap = 5; // Overlap this much when scrolling
-		const int indicator_width = 2; // One arrow on the left, one on the right
-		const int scroll_amount = TEXTED_MAXWIDTH - indicator_width - overlap;
-		const int num_scrolls = (editor->pos - overlap - 1)/scroll_amount;
-		new_sidescroll = num_scrolls*scroll_amount;
+		const int left_margin = 1 + 5; // Left arrow plus 5 characters overlap
+		const int right_margin = 1; // Right arrow
+		const int scroll_distance = TEXTED_MAXWIDTH - left_margin - right_margin;
+		const int num_scrolls = (editor->pos - left_margin)/scroll_distance;
+		new_sidescroll = num_scrolls*scroll_distance;
 	}
 
 	if (new_sidescroll != editor->sidescroll) {
