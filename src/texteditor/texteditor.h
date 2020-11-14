@@ -42,10 +42,6 @@
 #define TEXTED_PAGELENGTH 7
 #define TEXTED_NOWRAP 0
 
-/* Flags for long-line indicators */
-#define LINE_CONTINUES_LEFT 0x01
-#define LINE_CONTINUES_RIGHT 0x02
-
 /** A powerful, extendable text editing environment.
  *
  * TEXTEDITOR REFERENCE -- texteditor key actions
@@ -112,8 +108,6 @@ typedef struct {
 	int linewidth;
 	/** Width at which a line should be wrapped if possible. */
 	int wrapwidth;
-	/** Whether to show long-line indicators on the left/right side */
-	int longlineflags;
 
 	/* Control flags */
 	int updateflags;    /**< Show what parts of the display need to be updated. */

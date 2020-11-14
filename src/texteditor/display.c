@@ -78,14 +78,6 @@ void texteditUpdateDisplay(texteditor * editor)
 	}
 
 	if (editor->updateflags & TUD_CENTER) {
-		/* Update long-line indicators */
-		if (editor->longlineflags && LINE_CONTINUES_LEFT && 0) {
-			editor->d->putch_discrete(8, 13, 27, 0x20);
-		}
-		if (editor->longlineflags && LINE_CONTINUES_RIGHT && 0) {
-			editor->d->putch_discrete(51, 13, 26, 0x20);
-		}
-
 		/* Draw the center */
 		texteditDisplayLine(editor, 0, editor->curline->s);
 	}
