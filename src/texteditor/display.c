@@ -206,8 +206,13 @@ void texteditDisplaySelection(texteditor * editor)
 	}
 
 	/* Draw the highlighting for the current line. */
-	for (i = startPos; i < endPos; i++)
-		editor->d->putch_discrete(baseX + i, baseY, editor->curline->s[i], highlightColour);
+	const int max_x = baseX + TEXTED_MAXWIDTH - 1;
+	for (i = startPos; i < endPos; i++) {
+		int x = baseX + i - editor->sidescroll;
+		if (x >= baseX && x <= max_x) {
+			editor->d->putch_discrete(x, baseY, editor->curline->s[i], highlightColour);
+		}
+	}
 
 	/* If only the current line is highlighted, we are done. */
 	if (editor->selectlineoffset == 0)
@@ -246,6 +251,42 @@ void texteditDisplaySelection(texteditor * editor)
 		for (i = startPos; i < endPos; i++)
 			editor->d->putch_discrete(baseX + i, baseY + lineoffset, text->cur->s[i], highlightColour);
 	}
+}
+
+void texteditDisplaySelectedLine(texteditor * editor, int lineoffset, char * line) {
+	int startpos = 0, endpos = -1;
+	if (lineoffset == 0 || lineoffset == editor->selectlineoffset) {
+		// We're at the start or the end of the selection: draw a partial line
+		int selectpos_before_pos;
+		if (editor->selectlineoffset == 0) {
+			selectpos_before_pos = editor->selectpos < editor->pos;
+		} else {
+			selectpos_before_pos = editor->selectlineoffset < 0;
+		}
+
+		if (lineoffset == 0) {
+			*(selectpos_before_pos ? &endpos : &startpos) = editor->pos;
+		}
+		if (lineoffset == editor->selectlineoffset) {
+			*(selectpos_before_pos ? &startpos : &endpos) = editor->selectpos;
+		}
+	}
+
+	int startpos, endpos;
+	if (lineoffset == 0) {
+		// We're drawing the line with the cursor
+		if (editor->selectlineoffset == 0) {
+			// ...and it's the only line of the selection.
+			startpos = min(editor->pos, editor->selectpos);
+			endpos = max(editor->pos, editor->selectpos);
+		} else {
+
+		}
+	}
+}
+
+void texteditDisplaySelectionNew(texteditor * editor) {
+
 }
 
 void texteditDisplayPanel(texteditor * editor)
